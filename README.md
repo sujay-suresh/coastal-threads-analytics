@@ -20,12 +20,12 @@ A complete analytics pipeline built with **dbt + PostgreSQL + Streamlit** that d
 ```mermaid
 graph LR
     subgraph Sources
-        A[Shopify<br/>Customers, Orders, Items, Products] --> S
-        B[Stripe<br/>Payments] --> S
-        C[Klaviyo<br/>Customer Events] --> S
+        A[Shopify<br/>Customers, Orders, Items, Products]
+        B[Stripe<br/>Payments]
+        C[Klaviyo<br/>Customer Events]
     end
 
-    subgraph S[Staging Layer]
+    subgraph Staging
         S1[stg_shopify__customers]
         S2[stg_shopify__orders]
         S3[stg_shopify__order_items]
@@ -34,14 +34,14 @@ graph LR
         S6[stg_klaviyo__events]
     end
 
-    subgraph I[Intermediate Layer]
+    subgraph Intermediate
         I1[int_orders_enriched]
         I2[int_customers_rfm_scored]
         I3[int_orders_attributed]
         I4[int_cohorts_monthly]
     end
 
-    subgraph M[Marts Layer - Kimball Star Schema]
+    subgraph Marts[Marts Layer - Kimball Star Schema]
         D1[dim_customers<br/>SCD Type 2]
         D2[dim_products]
         D3[dim_date]
@@ -54,7 +54,26 @@ graph LR
         ST[Streamlit App<br/>3 Tabs]
     end
 
-    S --> I --> M --> Dashboard
+    A --> S1
+    A --> S2
+    A --> S3
+    A --> S4
+    B --> S5
+    C --> S6
+    S1 --> I1
+    S2 --> I1
+    S3 --> I1
+    S5 --> I1
+    S6 --> I2
+    I1 --> I3
+    I1 --> I4
+    I2 --> D1
+    I3 --> F1
+    I4 --> F2
+    I1 --> D2
+    D1 --> ST
+    F1 --> ST
+    F2 --> ST
 ```
 
 ## Key Findings
