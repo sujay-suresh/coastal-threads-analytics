@@ -1,0 +1,24 @@
+version: 2
+
+sources:
+  - name: stripe
+    schema: coastal_threads
+    description: Stripe payment processing data
+    tables:
+      - name: raw_payments
+        description: Raw payment records from Stripe
+        columns:
+          - name: payment_id
+            description: Stripe payment intent ID
+          - name: order_id
+            description: Foreign key to orders
+          - name: amount
+            description: Payment amount in USD
+          - name: currency
+            description: Payment currency code
+          - name: payment_method
+            description: Payment method used
+          - name: status
+            description: Payment status (succeeded, cancelled, refunded)
+          - name: created_at
+            description: Timestamp of payment creation

@@ -1,0 +1,167 @@
+version: 2
+
+models:
+  - name: dim_date
+    description: >
+      Date dimension with fiscal periods, day of week, and holiday flags.
+      Grain: one row per calendar date.
+    columns:
+      - name: date_key
+        description: Surrogate key for date dimension
+        tests:
+          - unique
+          - not_null
+      - name: date_day
+        description: Calendar date
+        tests:
+          - unique
+          - not_null
+
+  - name: dim_customers
+    description: >
+      Customer dimension with RFM segments and lifetime metrics.
+      SCD Type 2 with effective_from/effective_to for segment changes.
+      Grain: one row per customer per effective period.
+    columns:
+      - name: customer_key
+        description: Surrogate key for customer dimension
+        tests:
+          - unique
+          - not_null
+      - name: customer_id
+        description: Natural key from source system
+        tests:
+          - not_null
+      - name: rfm_segment
+        description: Current RFM segment assignment
+        tests:
+          - not_null
+      - name: recency_score
+        description: RFM recency score
+        tests:
+          - accepted_values:
+              values: [1, 2, 3, 4, 5]
+      - name: frequency_score
+        description: RFM frequency score
+        tests:
+          - accepted_values:
+              values: [1, 2, 3, 4, 5]
+      - name: monetary_score
+        description: RFM monetary score
+        tests:
+          - accepted_values:
+              values: [1, 2, 3, 4, 5]
+
+  - name: dim_products
+    description: >
+      Product dimension with hierarchy (category > subcategory > SKU).
+      Grain: one row per product.
+    columns:
+      - name: product_key
+        description: Surrogate key for product dimension
+        tests:
+          - unique
+          - not_null
+      - name: product_id
+        description: Natural key from source system
+        tests:
+          - unique
+          - not_null
+
+  - name: dim_channels
+    description: >
+      Marketing channel taxonomy dimension.
+      Grain: one row per distinct channel.
+    columns:
+      - name: channel_key
+        description: Surrogate key for channel dimension
+        tests:
+          - unique
+          - not_null
+      - name: channel
+        description: Channel name
+        tests:
+          - unique
+          - not_null
+
+  - name: fct_orders
+    description: >
+      Order fact table with foreign keys to all dimensions.
+      Grain: one row per order line item.
+    columns:
+      - name: order_line_key
+        description: Surrogate key for order line item
+        tests:
+          - unique
+          - not_null
+      - name: order_item_id
+        description: Natural key for order line item
+        tests:
+          - unique
+          - not_null
+      - name: customer_key
+        description: Foreign key to dim_customers
+        tests:
+          - relationships:
+              to: ref('dim_customers')
+              field: customer_key
+      - name: product_key
+        description: Foreign key to dim_products
+        tests:
+          - relationships:
+              to: ref('dim_products')
+              field: product_key
+      - name: date_key
+        description: Foreign key to dim_date
+        tests:
+          - relationships:
+              to: ref('dim_date')
+              field: date_key
+      - name: quantity
+        description: Quantity ordered
+        tests:
+          - not_null
+      - name: revenue
+        description: Line item revenue
+        tests:
+          - not_null
+
+  - name: fct_customer_events
+    description: >
+      Customer event fact table for marketing analytics.
+      Grain: one row per individual event.
+    columns:
+      - name: event_key
+        description: Surrogate key for event
+        tests:
+          - unique
+          - not_null
+      - name: event_id
+        description: Natural key for event
+        tests:
+          - unique
+          - not_null
+      - name: customer_key
+        description: Foreign key to dim_customers
+        tests:
+          - relationships:
+              to: ref('dim_customers')
+              field: customer_key
+      - name: date_key
+        description: Foreign key to dim_date
+        tests:
+          - relationships:
+              to: ref('dim_date')
+              field: date_key
+      - name: event_type
+        description: Type of customer event
+        tests:
+          - not_null
+          - accepted_values:
+              values:
+                - page_view
+                - email_open
+                - email_click
+                - ad_click
+                - organic_visit
+                - referral_click

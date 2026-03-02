@@ -1,0 +1,24 @@
+version: 2
+
+sources:
+  - name: klaviyo
+    schema: coastal_threads
+    description: Klaviyo marketing and customer event data
+    tables:
+      - name: raw_events
+        description: Raw customer interaction events from Klaviyo
+        columns:
+          - name: event_id
+            description: Primary key for events
+          - name: customer_id
+            description: Foreign key to customers
+          - name: event_type
+            description: Type of event (page_view, email_open, ad_click, etc.)
+          - name: channel
+            description: Marketing channel
+          - name: event_at
+            description: Timestamp of the event
+          - name: page_url
+            description: Page URL for page_view events
+          - name: session_id
+            description: Session identifier

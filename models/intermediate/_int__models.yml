@@ -1,0 +1,92 @@
+version: 2
+
+models:
+  - name: int_orders_enriched
+    description: >
+      Orders enriched with item-level aggregates and payment details.
+      Grain: one row per order.
+    columns:
+      - name: order_id
+        description: Primary key
+        tests:
+          - unique
+          - not_null
+      - name: customer_id
+        description: Foreign key to customers
+        tests:
+          - not_null
+      - name: order_total
+        description: Subtotal plus shipping cost
+
+  - name: int_customers_rfm_scored
+    description: >
+      Customer-level RFM scoring using NTILE(5) on recency, frequency,
+      and monetary dimensions over the trailing 12 months.
+      Grain: one row per customer.
+    columns:
+      - name: customer_id
+        description: Primary key
+        tests:
+          - unique
+          - not_null
+      - name: recency_score
+        description: RFM recency score (1-5, 5 = most recent)
+        tests:
+          - not_null
+          - accepted_values:
+              values: [1, 2, 3, 4, 5]
+      - name: frequency_score
+        description: RFM frequency score (1-5, 5 = most orders)
+        tests:
+          - not_null
+          - accepted_values:
+              values: [1, 2, 3, 4, 5]
+      - name: monetary_score
+        description: RFM monetary score (1-5, 5 = highest spend)
+        tests:
+          - not_null
+          - accepted_values:
+              values: [1, 2, 3, 4, 5]
+      - name: rfm_segment
+        description: Derived segment
+        tests:
+          - not_null
+          - accepted_values:
+              values:
+                - Champions
+                - Loyal
+                - New
+                - Promising
+                - At Risk
+                - Hibernating
+                - Needs Attention
+
+  - name: int_orders_attributed
+    description: >
+      Each order attributed to the most recent marketing touchpoint
+      (last-touch attribution) before the purchase.
+      Grain: one row per order.
+    columns:
+      - name: order_id
+        description: Primary key
+        tests:
+          - unique
+          - not_null
+      - name: channel_group
+        description: Grouped channel name (unattributed if no prior event)
+        tests:
+          - not_null
+
+  - name: int_cohorts_monthly
+    description: >
+      Monthly acquisition cohorts with retention flags at 30, 60, 90,
+      180, and 365 days. Grain: one row per customer per cohort month.
+    columns:
+      - name: customer_id
+        description: Primary key (with cohort_month)
+        tests:
+          - not_null
+      - name: cohort_month
+        description: Month of customer signup
+        tests:
+          - not_null

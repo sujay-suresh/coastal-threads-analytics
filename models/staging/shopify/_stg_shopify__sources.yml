@@ -1,0 +1,86 @@
+version: 2
+
+sources:
+  - name: shopify
+    schema: coastal_threads
+    description: Shopify e-commerce platform data
+    tables:
+      - name: raw_customers
+        description: Raw customer records from Shopify
+        columns:
+          - name: customer_id
+            description: Primary key for customers
+          - name: email
+            description: Customer email address
+          - name: first_name
+            description: Customer first name
+          - name: last_name
+            description: Customer last name
+          - name: gender
+            description: Customer gender (F, M, NB)
+          - name: age
+            description: Customer age
+          - name: state
+            description: US state code
+          - name: signup_at
+            description: Timestamp of account creation
+          - name: email_opt_in
+            description: Whether customer opted into email marketing
+          - name: is_deleted
+            description: Soft delete flag
+
+      - name: raw_orders
+        description: Raw order records from Shopify
+        columns:
+          - name: order_id
+            description: Primary key for orders
+          - name: customer_id
+            description: Foreign key to customers
+          - name: order_at
+            description: Timestamp of order placement
+          - name: status
+            description: Order status
+          - name: discount_pct
+            description: Discount percentage applied
+          - name: shipping_cost
+            description: Shipping cost in USD
+          - name: is_deleted
+            description: Soft delete flag
+
+      - name: raw_order_items
+        description: Raw order line items from Shopify
+        columns:
+          - name: order_item_id
+            description: Primary key for order items
+          - name: order_id
+            description: Foreign key to orders
+          - name: product_id
+            description: Foreign key to products
+          - name: quantity
+            description: Quantity ordered
+          - name: unit_price
+            description: Price per unit after discount
+          - name: total_price
+            description: Total line item price
+
+      - name: raw_products
+        description: Raw product catalog from Shopify
+        columns:
+          - name: product_id
+            description: Primary key for products
+          - name: sku
+            description: Stock keeping unit code
+          - name: product_name
+            description: Product display name
+          - name: category
+            description: Product category
+          - name: subcategory
+            description: Product subcategory
+          - name: base_price
+            description: Base retail price in USD
+          - name: cost_price
+            description: Cost of goods in USD
+          - name: is_active
+            description: Whether product is currently active
+          - name: created_at
+            description: Timestamp product was added to catalog
