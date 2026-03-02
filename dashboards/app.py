@@ -46,7 +46,7 @@ with tab1:
     kpi_data = run_query(f"""
         select
             count(distinct order_id) as total_orders,
-            count(distinct customer_id) as total_customers,
+            count(distinct customer_key) as total_customers,
             round(sum(revenue)::numeric, 2) as total_revenue,
             round(avg(revenue)::numeric, 2) as avg_item_revenue
         from {SCHEMA}.fct_orders
@@ -252,7 +252,7 @@ with tab2:
         select
             rfm_segment,
             sum(lifetime_revenue) as total_revenue,
-            round(sum(lifetime_revenue) / (select sum(lifetime_revenue) from {SCHEMA}.dim_customers) * 100, 1) as revenue_pct
+            round((sum(lifetime_revenue) / (select sum(lifetime_revenue) from {SCHEMA}.dim_customers) * 100)::numeric, 1) as revenue_pct
         from {SCHEMA}.dim_customers
         group by rfm_segment
         order by total_revenue desc
@@ -349,7 +349,7 @@ with tab3:
                 first_channel,
                 total_customers,
                 repeat_customers,
-                round(repeat_customers::numeric / nullif(total_customers, 0) * 100, 1) as retention_rate
+                round((repeat_customers::numeric / nullif(total_customers, 0) * 100)::numeric, 1) as retention_rate
             from retention
             where total_customers >= 50
             order by retention_rate desc
